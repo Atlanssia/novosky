@@ -47,5 +47,9 @@ func main() {
 }
 
 func loadCert(filename string) string {
-	return string(ioutil.ReadFile(filename))
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		fmt.Println("ERROR:", err)
+	}
+	return string(data)
 }
