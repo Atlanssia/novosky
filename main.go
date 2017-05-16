@@ -43,7 +43,7 @@ func main() {
 		http.HandleFunc(appConf.Uris[i].Uri, handler)
 	}
 	//    http.HandleFunc("/", handler)
-	http.ListenAndServe(":20175", nil)
+	http.ListenAndServeTLS(":20175", "cert/server.cert", "cert/server.key", nil)
 }
 
 func loadCert(filename string) string {
