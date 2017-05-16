@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -29,6 +31,10 @@ func handleRequest(w http.ResponseWriter, delay int, uri Uri) {
 			w.Header().Set(key, value)
 		}
 	}
+	if strings.HasSuffix(uri.Body, "cert") {
+		fmt.Fprintf(w, loadCert(uri.Body))
+		return
+	}
 	fmt.Fprintf(w, uri.Body)
 }
 
@@ -38,4 +44,8 @@ func main() {
 	}
 	//    http.HandleFunc("/", handler)
 	http.ListenAndServe(":2456", nil)
+}
+
+func loadCert(filename string) string {
+	return string(ioutil.ReadFile(filename))
 }

@@ -1,7 +1,7 @@
 {
   "uris": [
     {
-      "uri": "/{id}/V1.0/resource-name",
+      "uri": "/abc",
       "delay": 5000,
       "headers": [
         {
