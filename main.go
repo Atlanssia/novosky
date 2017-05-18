@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -28,18 +29,18 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	for i := 0; i < len(appConf.Uris); i++ {
 		if r.URL.Path == appConf.Uris[i].Uri {
-			handleRequest(w, appConf.Uris[i].Delay, appConf.Uris[i])
+			handleRequest(w, r, appConf.Uris[i].Delay, appConf.Uris[i])
 			return
 		}
 	}
 }
 
-func handleRequest(w http.ResponseWriter, delay int, uri Uri) {
+func handleRequest(w http.ResponseWriter, r *http.Request, delay int, uri Uri) {
 	time.Sleep(time.Duration(delay) * time.Millisecond)
 
 	// from outer
 	if uri.Source != "" {
-		handleSource(w, uri)
+		handleSource(w, r, uri)
 		return
 	}
 
@@ -53,14 +54,15 @@ func handleRequest(w http.ResponseWriter, delay int, uri Uri) {
 	fmt.Fprintf(w, uri.Body)
 }
 
-func handleSource(w http.ResponseWriter, uri Uri) {
-	if strings.HasPrefix(uri.Source, "http://") {
-		handleHttp(w, clientHttp, uri)
+func handleSource(w http.ResponseWriter, r *http.Request, uri Uri) {
+	srcArry := strings.SplitN(uri.Source, " ", 2)
+	if strings.HasPrefix(srcArry[1], "http://") {
+		handleHttp(w, r, clientHttp, srcArry)
 		return
 	}
 
-	if strings.HasPrefix(uri.Source, "https://") {
-		handleHttp(w, clientHttps, uri)
+	if strings.HasPrefix(srcArry[1], "https://") {
+		handleHttp(w, r, clientHttps, srcArry)
 		return
 	}
 
@@ -70,8 +72,19 @@ func handleSource(w http.ResponseWriter, uri Uri) {
 }
 
 // handle http and https
-func handleHttp(w http.ResponseWriter, client *http.Client, uri Uri) {
-	resp, err := client.Get(uri.Source)
+func handleHttp(w http.ResponseWriter, r *http.Request, client *http.Client, srcArry []string) {
+	var resp *http.Response
+	var err error
+	if srcArry[0] == "GET" {
+		fmt.Println("GET:[", srcArry[1], "]")
+		resp, err = client.Get(srcArry[1])
+	} else if srcArry[0] == "POST" {
+		fmt.Println("POST:[", srcArry[1], "]")
+		resp, err = client.Post(srcArry[1], "application/json", r.Body)
+	} else {
+		err = errors.New("Method not supported yet:" + srcArry[0])
+	}
+
 	if err != nil {
 		fmt.Fprintf(w, err.Error())
 		return

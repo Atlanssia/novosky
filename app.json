@@ -24,7 +24,7 @@
     {
       "uri": "/xyz",
       "delay": 0,
-      "source": "https://api.github.com/"
+      "source": "GET https://api.github.com/"
     }
   ]
 }
