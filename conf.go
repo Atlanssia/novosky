@@ -9,6 +9,7 @@ import (
 type Uri struct {
 	Uri     string              `json:"uri"`
 	Delay   int                 `json:"delay"`
+	Source  string              `json:"source"`
 	Headers []map[string]string `json:"headers"`
 	Body    string              `json:"body"`
 }
