@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -107,8 +108,11 @@ func main() {
 		http.HandleFunc(appConf.Uris[i].Uri, handler)
 	}
 	//http.HandleFunc("/", handler)
-	//http.ListenAndServeTLS(":20175", "cert/server.cert", "cert/server.key", nil)
-	http.ListenAndServe(":20175", nil)
+	if exist("config/server.cert") && exist("config/server.key") {
+		http.ListenAndServeTLS(":20175", "cert/server.cert", "cert/server.key", nil)
+	} else {
+		http.ListenAndServe(":20175", nil)
+	}
 }
 
 func loadCert(filename string) string {
@@ -117,4 +121,9 @@ func loadCert(filename string) string {
 		fmt.Println("ERROR:", err)
 	}
 	return string(data)
+}
+
+func exist(filename string) bool {
+	_, err := os.Stat(filename)
+	return err == nil || os.IsExist(err)
 }
