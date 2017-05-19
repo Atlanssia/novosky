@@ -109,7 +109,7 @@ func main() {
 	}
 	//http.HandleFunc("/", handler)
 	if exist("config/server.cert") && exist("config/server.key") {
-		http.ListenAndServeTLS(":20175", "cert/server.cert", "cert/server.key", nil)
+		http.ListenAndServeTLS(":20175", "config/server.cert", "config/server.key", nil)
 	} else {
 		http.ListenAndServe(":20175", nil)
 	}
